@@ -3,7 +3,6 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import * as React from "react";
-import sha256 from "crypto-js/sha256";
 import { useRouter } from "next/router";
 import { Toaster } from "react-hot-toast";
 
@@ -14,8 +13,14 @@ const Home: NextPage = () => {
 
     const { hash, name } = router.query;
 
-    const checkIfCrush = React.useCallback(() => {
-        const newCrushHash = sha256(crushName.toLowerCase ()).toString();
+    const checkIfCrush = React.useCallback(async () => {
+        const newCrushHash =  await fetch('/api/hash', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ crushName })
+        }).then(r=>r.json()).then(r=>r.hash);
         setCrushHash(newCrushHash);
     }, [crushName]);
 

@@ -3,7 +3,6 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import * as React from "react";
-import sha256 from "crypto-js/sha256";
 import toast, { Toaster } from "react-hot-toast";
 
 const Home: NextPage = () => {
@@ -11,8 +10,14 @@ const Home: NextPage = () => {
     const [crushName, setCrushName] = React.useState<string>("");
     const [savedURL, setSavedURL] = React.useState<string>("");
 
-    const generateUrl = React.useCallback(() => {
-        const hash = sha256(crushName.toLowerCase ()).toString();
+    const generateUrl = React.useCallback(async () => {
+        const hash = await fetch('/api/hash', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ crushName })
+        }).then(r=>r.json()).then(r=>r.hash)
         const savedURL =
             (process.env.NODE_ENV === "development" ? "http://localhost:3000/" : "https://zkcrush.xyz/") +
             `crush?hash=${encodeURIComponent(hash)}&name=${encodeURIComponent(name)}`;
